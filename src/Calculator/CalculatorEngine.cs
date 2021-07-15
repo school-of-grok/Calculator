@@ -4,48 +4,51 @@ namespace Calculator
 {
 	public class CalculatorEngine
     {
+        private ArgumentParser _parser = new ArgumentParser();
+        private decimal _lastResult = 0;
+
+        public decimal? Calculate(string arg)
+        {
+            return Calculate(new[] {arg});
+        }
+
         public decimal? Calculate(string[] args)
         {
-            if (args.Length != 3)
+            if (!_parser.TryParse(args, out decimal? left, out char op, out decimal right))
             {
-                Console.WriteLine("Usage: calculator left op right");
                 return null;
             }
 
-            if (!decimal.TryParse(args[0], out decimal left))
+            if (left is null)
             {
-                Console.WriteLine("Error: left value is not a number");
-                return null;
+                left = _lastResult;
             }
 
-            if (!decimal.TryParse(args[2], out decimal right))
+            decimal? result;
+
+            switch (op)
             {
-                Console.WriteLine("Error: right value is not a number");
-                return null;
+                case '+':
+                    result = left + right;
+                    break;
+                case '-':
+                    result = left - right;
+                    break;
+                case '*':
+                    result = left * right;
+                    break;
+                case '/':
+                    result = left / right;
+                    break;
+                default:
+                    Console.WriteLine("Error: operator not recognized");
+                    result = null;
+                    break;
             }
 
-            decimal result;
-
-            if (args[1] == "+")
+            if (result is not null)
             {
-                result = left + right;
-            }
-            else if (args[1] == "-")
-            {
-                result = left - right;
-            }
-            else if (args[1] == "*")
-            {
-                result = left * right;
-            }
-            else if (args[1] == "/")
-            {
-                result = left / right;
-            }
-            else
-            {
-                Console.WriteLine("Error: operator not recognized");
-                return null;
+                _lastResult = result.Value;
             }
 
             return result;
